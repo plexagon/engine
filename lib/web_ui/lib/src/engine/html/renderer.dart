@@ -147,7 +147,7 @@ class HtmlRenderer implements Renderer {
 
   @override
   Future<ui.Codec> instantiateImageCodec(Uint8List list,
-      {int? targetWidth, int? targetHeight, bool allowUpscaling = true}) async {
+      {int? targetWidth, int? targetHeight, bool allowUpscaling = true, mipmapped = true}) async {
     final DomBlob blob = createDomBlob(<dynamic>[list.buffer]);
     return HtmlRendererBlobCodec(blob);
   }

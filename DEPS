@@ -14,7 +14,8 @@ vars = {
   'flutter_git': 'https://flutter.googlesource.com',
   'skia_git': 'https://skia.googlesource.com',
   'llvm_git': 'https://llvm.googlesource.com',
-  'skia_revision': '9d530bb0bcbfd571ee3d820fdd79ff859d61e2cd',
+  'clay_skia_git': 'git@github.com:plexagon/skia.git',
+  'skia_revision': '28b8b3399dd652d22ebde7adc7bc231842f70084',
 
   # WARNING: DO NOT EDIT canvaskit_cipd_instance MANUALLY
   # See `lib/web_ui/README.md` for how to roll CanvasKit to a new version.
@@ -24,7 +25,7 @@ vars = {
   # This prevents us from downloading the Emscripten toolchain for builds
   # which do not build for the web. This toolchain is needed to build CanvasKit
   # for the web engine.
-  'download_emsdk': False,
+  'download_emsdk': True,
 
   # For experimental features some dependencies may only be avaialable in the master/main
   # channels. This variable is being set when CI is checking out the repository.
@@ -633,7 +634,7 @@ deps = {
    Var('flutter_git') + '/third_party/freetype2' + '@' + 'bfc3453fdc85d87b45c896f68bf2e49ebdaeef0a',
 
   'src/flutter/third_party/skia':
-   Var('skia_git') + '/skia.git' + '@' +  Var('skia_revision'),
+   Var('clay_skia_git') + '@' +  Var('skia_revision'),
 
   'src/flutter/third_party/ocmock':
    Var('flutter_git') + '/third_party/ocmock' + '@' +  Var('ocmock_rev'),
