@@ -88,6 +88,10 @@ class FakeAllocator : public Allocator,
     }
     return nullptr;
   }
+  std::shared_ptr<Texture> WrapTexture(const TextureDescriptor& desc,
+                                       int64_t raw_texture) const {
+    return nullptr;
+  }
 
   std::vector<std::shared_ptr<FakeTexture>> textures = {};
 };

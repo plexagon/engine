@@ -1688,6 +1688,34 @@ class Image {
     onCreate?.call(this);
   }
 
+  factory Image.fromTextureID({
+    required int textureId,
+    required int width,
+    required int height
+  }) => Image._(
+    _Image.createFromTextureId(
+      textureId,
+      width,
+      height
+    ),
+    width,
+    height,
+  );
+
+  factory Image.fromTexturePointer({
+    required int texturePointer,
+    required int width,
+    required int height
+  }) => Image._(
+    _Image.createFromTexturePointer(
+      texturePointer,
+      width,
+      height
+    ),
+    width,
+    height,
+  );
+
   // C++ unit tests access this.
   @pragma('vm:entry-point')
   final _Image _image;
@@ -1705,6 +1733,8 @@ class Image {
   /// than to use [onDispose] directly because [MemoryAllocations]
   /// allows multiple callbacks.
   static ImageEventCallback? onDispose;
+
+  void Function()? disposeCallback;
 
   StackTrace? _debugStack;
 
@@ -1733,6 +1763,7 @@ class Image {
     final bool removed = _image._handles.remove(this);
     assert(removed);
     if (_image._handles.isEmpty) {
+      disposeCallback?.call();
       _image.dispose();
     }
   }
@@ -1892,7 +1923,9 @@ class Image {
       );
     }
     assert(!_image._disposed);
-    return Image._(_image, width, height);
+    final Image image = Image._(_image, width, height);
+    image.disposeCallback = disposeCallback;
+    return image;
   }
 
   /// Returns true if `other` is a [clone] of this and thus shares the same
@@ -1919,6 +1952,12 @@ base class _Image extends NativeFieldWrapperClass1 {
   // use the ImageDescriptor API.
   @pragma('vm:entry-point')
   _Image._();
+
+  @Native<Handle Function(Int64, Int32, Int32)>(symbol: 'Image::CreateFromTextureID')
+  external static _Image createFromTextureId(int textureId, int width, int height);
+
+  @Native<Handle Function(Int64, Int32, Int32)>(symbol: 'Image::CreateFromTexturePointer')
+  external static _Image createFromTexturePointer(int texturePointer, int width, int height);
 
   @Native<Int32 Function(Pointer<Void>)>(symbol: 'Image::width', isLeaf: true)
   external int get width;
@@ -2176,6 +2215,7 @@ Future<Codec> instantiateImageCodec(
   int? targetWidth,
   int? targetHeight,
   bool allowUpscaling = true,
+  bool mipmapped = true,
 }) async {
   final ImmutableBuffer buffer = await ImmutableBuffer.fromUint8List(list);
   return instantiateImageCodecFromBuffer(
@@ -2183,6 +2223,7 @@ Future<Codec> instantiateImageCodec(
     targetWidth: targetWidth,
     targetHeight: targetHeight,
     allowUpscaling: allowUpscaling,
+    mipmapped: mipmapped
   );
 }
 
@@ -2230,6 +2271,7 @@ Future<Codec> instantiateImageCodecFromBuffer(
   int? targetWidth,
   int? targetHeight,
   bool allowUpscaling = true,
+  bool mipmapped = true,
 }) {
   return instantiateImageCodecWithSize(
     buffer,
@@ -2244,6 +2286,7 @@ Future<Codec> instantiateImageCodecFromBuffer(
       }
       return TargetImageSize(width: targetWidth, height: targetHeight);
     },
+    mipmapped: mipmapped,
   );
 }
 
@@ -2285,6 +2328,7 @@ Future<Codec> instantiateImageCodecFromBuffer(
 Future<Codec> instantiateImageCodecWithSize(
   ImmutableBuffer buffer, {
   TargetImageSizeCallback? getTargetSize,
+  bool mipmapped = true,
 }) async {
   getTargetSize ??= _getDefaultImageSize;
   final ImageDescriptor descriptor = await ImageDescriptor.encoded(buffer);
@@ -2295,6 +2339,7 @@ Future<Codec> instantiateImageCodecWithSize(
     return descriptor.instantiateCodec(
       targetWidth: targetSize.width,
       targetHeight: targetSize.height,
+      mipmapped: mipmapped,
     );
   } finally {
     buffer.dispose();
@@ -2364,12 +2409,12 @@ class TargetImageSize {
 /// This is a convenience wrapper around [instantiateImageCodec]. Prefer using
 /// [instantiateImageCodec] which also supports multi frame images and offers
 /// better error handling. This function swallows asynchronous errors.
-void decodeImageFromList(Uint8List list, ImageDecoderCallback callback) {
-  _decodeImageFromListAsync(list, callback);
+void decodeImageFromList(Uint8List list, ImageDecoderCallback callback, {bool mipmapped = true}) {
+  _decodeImageFromListAsync(list, callback, mipmapped);
 }
 
-Future<void> _decodeImageFromListAsync(Uint8List list, ImageDecoderCallback callback) async {
-  final Codec codec = await instantiateImageCodec(list);
+Future<void> _decodeImageFromListAsync(Uint8List list, ImageDecoderCallback callback, bool mipmapped) async {
+  final Codec codec = await instantiateImageCodec(list, mipmapped: mipmapped);
   final FrameInfo frameInfo = await codec.getNextFrame();
   callback(frameInfo.image);
 }
@@ -2408,6 +2453,7 @@ void decodeImageFromPixels(
   int? targetWidth,
   int? targetHeight,
   bool allowUpscaling = true,
+  bool mipmapped = true,
 }) {
   if (targetWidth != null) {
     assert(allowUpscaling || targetWidth <= width);
@@ -2439,6 +2485,7 @@ void decodeImageFromPixels(
         .instantiateCodec(
           targetWidth: targetWidth,
           targetHeight: targetHeight,
+          mipmapped: mipmapped,
         )
         .then((Codec codec) {
           final Future<FrameInfo> frameInfo = codec.getNextFrame();
@@ -4604,9 +4651,9 @@ base class FragmentShader extends Shader {
   ///
   /// All the sampler uniforms that a shader expects must be provided or the
   /// results will be undefined.
-  void setImageSampler(int index, Image image) {
+  void setImageSampler(int index, Image image, {FilterQuality filterQuality = FilterQuality.none}) {
     assert(!debugDisposed, 'Tried to access uniforms on a disposed Shader: $this');
-    _setImageSampler(index, image._image);
+    _setImageSampler(index, image._image, filterQuality.index);
   }
 
   /// Releases the native resources held by the [FragmentShader].
@@ -4624,8 +4671,8 @@ base class FragmentShader extends Shader {
   @Native<Handle Function(Handle, Handle, Handle, Handle)>(symbol: 'ReusableFragmentShader::Create')
   external Float32List _constructor(FragmentProgram program, int floatUniforms, int samplerUniforms);
 
-  @Native<Void Function(Pointer<Void>, Handle, Handle)>(symbol: 'ReusableFragmentShader::SetImageSampler')
-  external void _setImageSampler(int index, _Image sampler);
+  @Native<Void Function(Pointer<Void>, Handle, Handle, Int32)>(symbol: 'ReusableFragmentShader::SetImageSampler')
+  external void _setImageSampler(int index, _Image sampler, int filterQualityIndex);
 
   @Native<Bool Function(Pointer<Void>)>(symbol: 'ReusableFragmentShader::ValidateSamplers')
   external bool _validateSamplers();
@@ -6819,7 +6866,7 @@ abstract class ImageDescriptor {
   ///
   /// If either targetWidth or targetHeight is less than or equal to zero, it
   /// will be treated as if it is null.
-  Future<Codec> instantiateCodec({int? targetWidth, int? targetHeight});
+  Future<Codec> instantiateCodec({int? targetWidth, int? targetHeight, bool mipmapped = true});
 }
 
 base class _NativeImageDescriptor extends NativeFieldWrapperClass1 implements ImageDescriptor {
@@ -6883,8 +6930,17 @@ base class _NativeImageDescriptor extends NativeFieldWrapperClass1 implements Im
   @Native<Void Function(Pointer<Void>)>(symbol: 'ImageDescriptor::dispose')
   external void dispose();
 
+  /// Creates a [Codec] object which is suitable for decoding the data in the
+  /// buffer to an [Image].
+  ///
+  /// If only one of targetWidth or  targetHeight are specified, the other
+  /// dimension will be scaled according to the aspect ratio of the supplied
+  /// dimension.
+  ///
+  /// If either targetWidth or targetHeight is less than or equal to zero, it
+  /// will be treated as if it is null.
   @override
-  Future<Codec> instantiateCodec({int? targetWidth, int? targetHeight}) async {
+  Future<Codec> instantiateCodec({int? targetWidth, int? targetHeight, bool mipmapped = true}) async {
     if (targetWidth != null && targetWidth <= 0) {
       targetWidth = null;
     }
@@ -6904,15 +6960,48 @@ base class _NativeImageDescriptor extends NativeFieldWrapperClass1 implements Im
     assert(targetHeight != null);
 
     final Codec codec = _NativeCodec._();
-    _instantiateCodec(codec, targetWidth!, targetHeight!);
+    _instantiateCodec(codec, targetWidth!, targetHeight!, mipmapped);
     return codec;
   }
 
-  @Native<Void Function(Pointer<Void>, Handle, Int32, Int32)>(symbol: 'ImageDescriptor::instantiateCodec')
-  external void _instantiateCodec(Codec outCodec, int targetWidth, int targetHeight);
-
   @override
   String toString() => 'ImageDescriptor(width: ${_width ?? '?'}, height: ${_height ?? '?'}, bytes per pixel: ${_bytesPerPixel ?? '?'})';
+  @Native<Void Function(Pointer<Void>, Handle, Int32, Int32, Bool)>(symbol: 'ImageDescriptor::instantiateCodec')
+  external void _instantiateCodec(Codec outCodec, int targetWidth, int targetHeight, bool mipmapped);
+}
+
+final class RenderSurface extends NativeFieldWrapperClass1 {
+  RenderSurface._(int rawTexture) {
+    _constructor(rawTexture);
+  }
+
+  static Future<RenderSurface> fromTexture(int rawTexture, int width, int height) {
+    final Completer<RenderSurface> completer = Completer<RenderSurface>();
+    final RenderSurface renderSurface = RenderSurface._(rawTexture);
+    renderSurface._setup(width, height, () { completer.complete(renderSurface); });
+    return completer.future;
+  }
+
+  @Native<Void Function(Handle, Int64)>(symbol: 'RenderSurface::Create')
+  external void _constructor(int rawTexture);
+
+  bool get isValid => _isValid();
+
+  @Native<Bool Function(Pointer<Void>)>(symbol: 'RenderSurface::is_valid')
+  external bool _isValid();
+
+  @Native<Void Function(Pointer<Void>, Int32, Int32, Handle)>(symbol: 'RenderSurface::setup')
+  external void _setup(int width, int height, VoidCallback callback);
+
+  Future<void> dispose() async {
+    final Completer<void> completer = Completer<void>();
+    _dispose(() => completer.complete());
+    return completer.future;
+  }
+
+  @Native<Void Function(Pointer<Void>, Handle)>(symbol: 'RenderSurface::dispose')
+  external void _dispose(VoidCallback callback);
+
 }
 
 /// Generic callback signature, used by [_futurize].
