@@ -42,8 +42,7 @@ class CkPicture implements ScenePicture {
       return result!;
     }
 
-    throw StateError(
-        'Picture.debugDisposed is only available when asserts are enabled.');
+    throw StateError('Picture.debugDisposed is only available when asserts are enabled.');
   }
 
   /// This is set to true when [dispose] is called and is never reset back to
@@ -96,12 +95,22 @@ class CkPicture implements ScenePicture {
   }
 
   @override
+  Future<Object?> toCanvas(int width, int height) async {
+    final Surface surface = CanvasKitRenderer.instance.pictureToImageSurface;
+    final CkSurface ckSurface = surface.createOrUpdateSurface(ui.Size(width.toDouble(), height.toDouble()));
+    final CkCanvas ckCanvas = ckSurface.getCanvas();
+    ckCanvas.clear(const ui.Color(0x00000000));
+    ckCanvas.drawPicture(this);
+    ckSurface.surface.flush();
+    return surface.hostElement;
+  }
+
+  @override
   CkImage toImageSync(int width, int height) {
     assert(debugCheckNotDisposed('Cannot convert picture to image.'));
 
     final Surface surface = CanvasKitRenderer.instance.pictureToImageSurface;
-    final CkSurface ckSurface = surface
-        .createOrUpdateSurface(ui.Size(width.toDouble(), height.toDouble()));
+    final CkSurface ckSurface = surface.createOrUpdateSurface(ui.Size(width.toDouble(), height.toDouble()));
     final CkCanvas ckCanvas = ckSurface.getCanvas();
     ckCanvas.clear(const ui.Color(0x00000000));
     ckCanvas.drawPicture(this);
@@ -114,11 +123,26 @@ class CkPicture implements ScenePicture {
       height: height.toDouble(),
     );
     final Uint8List pixels = skImage.readPixels(0, 0, imageInfo);
-    final SkImage? rasterImage =
-        canvasKit.MakeImage(imageInfo, pixels, (4 * width).toDouble());
+    final SkImage? rasterImage = canvasKit.MakeImage(imageInfo, pixels, (4 * width).toDouble());
     if (rasterImage == null) {
       throw StateError('Unable to convert image pixels into SkImage.');
     }
+    ckSurface.dispose();
     return CkImage(rasterImage);
+  }
+
+  @override
+  Future<void> renderToSurface(ui.RenderSurface renderSurface, {bool flipVertical = false}) async {
+    final SkCanvas canvas = renderSurface.skiaObject.getCanvas();
+    canvas.save();
+
+    if (flipVertical) {
+      canvas.translate(0, renderSurface.height.toDouble());
+      canvas.scale(1, -1);
+    }
+
+    canvas.drawPicture(skiaObject);
+    canvas.restore();
+    renderSurface.skiaObject.flush();
   }
 }

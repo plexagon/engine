@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:js_interop';
+import 'dart:typed_data';
 
 import 'package:ui/ui.dart' as ui;
 
@@ -14,9 +15,12 @@ import '../platform_dispatcher.dart';
 import '../util.dart';
 import 'canvas.dart';
 import 'canvaskit_api.dart';
+import 'image.dart';
+import 'native_memory.dart';
 import 'picture.dart';
 import 'rasterizer.dart';
 import 'render_canvas.dart';
+import 'renderer.dart';
 import 'util.dart';
 
 // Only supported in profile/release mode. Allows Flutter to use MSAA but
@@ -50,9 +54,7 @@ class SurfaceFrame {
 /// successive frames if they are the same size. Otherwise, a new [CkSurface] is
 /// created.
 class Surface extends DisplayCanvas {
-  Surface({this.isDisplayCanvas = false})
-      : useOffscreenCanvas =
-            Surface.offscreenCanvasSupported && !isDisplayCanvas;
+  Surface({this.isDisplayCanvas = false}) : useOffscreenCanvas = Surface.offscreenCanvasSupported && !isDisplayCanvas;
 
   CkSurface? _surface;
 
@@ -105,6 +107,8 @@ class Surface extends DisplayCanvas {
   @override
   final DomElement hostElement = createDomElement('flt-canvas-container');
 
+  SkGrContext? get grContext => _grContext;
+
   int _pixelWidth = -1;
   int _pixelHeight = -1;
   double _currentDevicePixelRatio = -1;
@@ -132,8 +136,7 @@ class Surface extends DisplayCanvas {
     _surface!.flush();
   }
 
-  Future<void> rasterizeToCanvas(
-      ui.Size frameSize, RenderCanvas canvas, List<CkPicture> pictures) async {
+  Future<void> rasterizeToCanvas(ui.Size frameSize, RenderCanvas canvas, List<CkPicture> pictures) async {
     final CkCanvas skCanvas = getCanvas();
     skCanvas.clear(const ui.Color(0x00000000));
     pictures.forEach(skCanvas.drawPicture);
@@ -173,8 +176,7 @@ class Surface extends DisplayCanvas {
     final CkSurface surface = createOrUpdateSurface(size);
 
     // ignore: prefer_function_declarations_over_variables
-    final SubmitCallback submitCallback =
-        (SurfaceFrame surfaceFrame, CkCanvas canvas) {
+    final SubmitCallback submitCallback = (SurfaceFrame surfaceFrame, CkCanvas canvas) {
       return _presentSurface();
     };
 
@@ -194,8 +196,7 @@ class Surface extends DisplayCanvas {
   /// match the size of the window precisely we use the most precise floating
   /// point value we can get.
   void _updateLogicalHtmlCanvasSize() {
-    final double devicePixelRatio =
-        EngineFlutterDisplay.instance.devicePixelRatio;
+    final double devicePixelRatio = EngineFlutterDisplay.instance.devicePixelRatio;
     final double logicalWidth = _pixelWidth / devicePixelRatio;
     final double logicalHeight = _pixelHeight / devicePixelRatio;
     final DomCSSStyleDeclaration style = _canvasElement!.style;
@@ -210,25 +211,19 @@ class Surface extends DisplayCanvas {
   /// the top left of the window. We need to shift the canvas down so that the
   /// bottom left of the <canvas> is the the bottom left corner of the window.
   void positionToShowFrame(ui.Size frameSize) {
-    assert(isDisplayCanvas,
-        'Should not position Surface if not used as a render canvas');
-    final double devicePixelRatio =
-        EngineFlutterDisplay.instance.devicePixelRatio;
+    assert(isDisplayCanvas, 'Should not position Surface if not used as a render canvas');
+    final double devicePixelRatio = EngineFlutterDisplay.instance.devicePixelRatio;
     final double logicalHeight = _pixelHeight / devicePixelRatio;
     final double logicalFrameHeight = frameSize.height / devicePixelRatio;
 
     // Shift the canvas up so the bottom left is in the window.
-    _canvasElement!.style.transform =
-        'translate(0px, ${logicalFrameHeight - logicalHeight}px)';
+    _canvasElement!.style.transform = 'translate(0px, ${logicalFrameHeight - logicalHeight}px)';
   }
 
   /// This is only valid after the first frame or if [ensureSurface] has been
   /// called
   bool get usingSoftwareBackend =>
-      _glContext == null ||
-      _grContext == null ||
-      webGLVersion == -1 ||
-      configuration.canvasKitForceCpuOnly;
+      _glContext == null || _grContext == null || webGLVersion == -1 || configuration.canvasKitForceCpuOnly;
 
   /// Ensure that the initial surface exists and has a size of at least [size].
   ///
@@ -261,8 +256,7 @@ class Surface extends DisplayCanvas {
       if (previousSurfaceSize != null &&
           size.width == previousSurfaceSize.width &&
           size.height == previousSurfaceSize.height) {
-        final double devicePixelRatio =
-            EngineFlutterDisplay.instance.devicePixelRatio;
+        final double devicePixelRatio = EngineFlutterDisplay.instance.devicePixelRatio;
         if (isDisplayCanvas && devicePixelRatio != _currentDevicePixelRatio) {
           _updateLogicalHtmlCanvasSize();
         }
@@ -273,8 +267,7 @@ class Surface extends DisplayCanvas {
       // Initialize a new, larger, canvas. If the size is growing, then make the
       // new canvas larger than required to avoid many canvas creations.
       if (previousCanvasSize != null &&
-          (size.width > previousCanvasSize.width ||
-              size.height > previousCanvasSize.height)) {
+          (size.width > previousCanvasSize.width || size.height > previousCanvasSize.height)) {
         final ui.Size newSize = size * 1.4;
         _surface?.dispose();
         _surface = null;
@@ -287,8 +280,7 @@ class Surface extends DisplayCanvas {
           _canvasElement!.width = _pixelWidth.toDouble();
           _canvasElement!.height = _pixelHeight.toDouble();
         }
-        _currentCanvasPhysicalSize =
-            ui.Size(_pixelWidth.toDouble(), _pixelHeight.toDouble());
+        _currentCanvasPhysicalSize = ui.Size(_pixelWidth.toDouble(), _pixelHeight.toDouble());
         if (isDisplayCanvas) {
           _updateLogicalHtmlCanvasSize();
         }
@@ -383,8 +375,7 @@ class Surface extends DisplayCanvas {
       _offscreenCanvas = offscreenCanvas;
       _canvasElement = null;
     } else {
-      final DomCanvasElement canvas =
-          createDomCanvasElement(width: _pixelWidth, height: _pixelHeight);
+      final DomCanvasElement canvas = createDomCanvasElement(width: _pixelWidth, height: _pixelHeight);
       htmlCanvas = canvas;
       _canvasElement = canvas;
       _offscreenCanvas = null;
@@ -402,8 +393,7 @@ class Surface extends DisplayCanvas {
     // notification. When we receive this notification we force a new context.
     //
     // See also: https://www.khronos.org/webgl/wiki/HandlingContextLost
-    _cachedContextRestoredListener =
-        createDomEventListener(_contextRestoredListener);
+    _cachedContextRestoredListener = createDomEventListener(_contextRestoredListener);
     _cachedContextLostListener = createDomEventListener(_contextLostListener);
     htmlCanvas.addEventListener(
       'webglcontextlost',
@@ -476,13 +466,8 @@ class Surface extends DisplayCanvas {
     } else if (_glContext == 0) {
       return _makeSoftwareCanvasSurface('Failed to initialize WebGL context');
     } else {
-      final SkSurface? skSurface = canvasKit.MakeOnScreenGLSurface(
-          _grContext!,
-          size.width.ceilToDouble(),
-          size.height.ceilToDouble(),
-          SkColorSpaceSRGB,
-          _sampleCount,
-          _stencilBits);
+      final SkSurface? skSurface = canvasKit.MakeOnScreenGLSurface(_grContext!, size.width.ceilToDouble(),
+          size.height.ceilToDouble(), SkColorSpaceSRGB, _sampleCount, _stencilBits);
 
       if (skSurface == null) {
         return _makeSoftwareCanvasSurface('Failed to initialize WebGL surface');
@@ -527,10 +512,8 @@ class Surface extends DisplayCanvas {
 
   @override
   void dispose() {
-    _offscreenCanvas?.removeEventListener(
-        'webglcontextlost', _cachedContextLostListener, false);
-    _offscreenCanvas?.removeEventListener(
-        'webglcontextrestored', _cachedContextRestoredListener, false);
+    _offscreenCanvas?.removeEventListener('webglcontextlost', _cachedContextLostListener, false);
+    _offscreenCanvas?.removeEventListener('webglcontextrestored', _cachedContextRestoredListener, false);
     _cachedContextLostListener = null;
     _cachedContextRestoredListener = null;
     _surface?.dispose();
@@ -538,8 +521,7 @@ class Surface extends DisplayCanvas {
 
   /// Safari 15 doesn't support OffscreenCanvas at all. Safari 16 supports
   /// OffscreenCanvas, but only with the context2d API, not WebGL.
-  static bool get offscreenCanvasSupported =>
-      browserSupportsOffscreenCanvas && !isSafari;
+  static bool get offscreenCanvasSupported => browserSupportsOffscreenCanvas && !isSafari;
 }
 
 /// A Dart wrapper around Skia's CkSurface.
@@ -578,4 +560,82 @@ class CkSurface {
   }
 
   bool _isDisposed = false;
+}
+
+class CkRenderSurface implements ui.RenderSurface {
+  CkRenderSurface(this.texture, this.width, this.height, this.isExport) {
+    _ref = UniqueRef<SkSurface>(this, setup(width, height), 'CkRenderSurface');
+  }
+
+  @override
+  int height;
+
+  @override
+  bool isExport;
+
+  @override
+  Object texture;
+
+  @override
+  int width;
+
+  SkGrContext? _grContext;
+
+  late UniqueRef<SkSurface> _ref;
+
+  @override
+  SkSurface get skiaObject => _ref.nativeObject;
+
+  static Future<ui.RenderSurface> fromTexture(Object textureId, int width, int height, {bool isExport = false}) async {
+    // Setup is run via createDefault in the parent constructor
+    return CkRenderSurface(textureId, width, height, isExport);
+  }
+
+  @override
+  SkSurface setup(int width, int height) {
+    final surface =
+        isExport ? CanvasKitRenderer.instance.pictureToImageSurface : CanvasKitRenderer.instance.pictureToImageSurface;
+    final SkGrContext? grContext = surface.grContext;
+    if (grContext == null) {
+      throw Exception('No grContext from baseSurface when setting up RenderSurface (isExport: $isExport).');
+    }
+
+    _grContext = grContext;
+    final SkSurface? skSurface = canvasKit.MakeRenderTarget(grContext, width, height);
+
+    if (skSurface == null) {
+      throw Exception('Failed to create GPU-backed SkSurface for RenderSurface');
+    }
+
+    return skSurface;
+  }
+
+  @override
+  void toBytes(ByteBuffer buffer) {
+    final SkGrContext? grContext = CanvasKitRenderer.instance.pictureToImageSurface.grContext;
+    if (grContext == null) {
+      throw Exception('No grContext from baseSurface when setting up RenderSurface.');
+    }
+    skiaObject.readPixelsGL(buffer.asUint8List(), grContext);
+  }
+
+  ui.Image? makeImageSnapshotFromSource(Object src) {
+    // TODO: patchy workaround, fix firing onchange from surface update if possible
+    final SkGrContext? currContext = CanvasKitRenderer.instance.pictureToImageSurface.grContext;
+    if (_grContext != currContext) {
+      skiaObject.delete();
+      _ref = UniqueRef<SkSurface>(this, setup(width, height), 'CkRenderSurface');
+      _grContext = currContext;
+    }
+
+    skiaObject.updateFromSource(src, width, height, false);
+    skiaObject.flush();
+    return CkImage(skiaObject.makeImageSnapshot());
+  }
+
+  @override
+  Future<void> dispose() async {
+    skiaObject.delete();
+    _ref.dispose();
+  }
 }
