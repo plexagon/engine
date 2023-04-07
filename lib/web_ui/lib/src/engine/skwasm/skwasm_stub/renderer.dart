@@ -141,7 +141,7 @@ class SkwasmRenderer implements Renderer {
   }
 
   @override
-  Future<ui.Codec> instantiateImageCodec(Uint8List list, {int? targetWidth, int? targetHeight, bool allowUpscaling = true}) {
+  Future<ui.Codec> instantiateImageCodec(Uint8List list, {int? targetWidth, int? targetHeight, bool allowUpscaling = true, bool mipmapped = true}) {
     throw UnimplementedError('Skwasm not implemented on this platform.');
   }
 
@@ -194,5 +194,10 @@ class SkwasmRenderer implements Renderer {
   @override
   ui.Image createImageFromTextureSource(JSAny object,  { required int width, required int height, required bool transferOwnership }) {
     throw Exception('Skwasm not implemented on this platform.');
+  }
+
+  @override
+  ui.RenderSurface createRenderSurface(Object textureId, int width, int height) {
+    throw UnimplementedError('Skwasm not implemented on this platform.');
   }
 }

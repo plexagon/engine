@@ -147,7 +147,7 @@ class HtmlRenderer implements Renderer {
 
   @override
   Future<ui.Codec> instantiateImageCodec(Uint8List list,
-      {int? targetWidth, int? targetHeight, bool allowUpscaling = true}) async {
+      {int? targetWidth, int? targetHeight, bool allowUpscaling = true, mipmapped = true}) async {
     final DomBlob blob = createDomBlob(<dynamic>[list.buffer]);
     return HtmlRendererBlobCodec(blob);
   }
@@ -375,5 +375,10 @@ class HtmlRenderer implements Renderer {
   @override
   FutureOr<ui.Image> createImageFromTextureSource(JSAny object,  { required int width, required int height, required bool transferOwnership }) {
     throw Exception('Not implemented for HTML renderer');
+  }
+
+  @override
+  ui.RenderSurface createRenderSurface(Object textureId, int width, int height) {
+    throw UnimplementedError('createRenderSurface not implemented in HTML renderer.');
   }
 }

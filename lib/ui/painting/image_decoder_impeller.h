@@ -61,6 +61,7 @@ class ImageDecoderImpeller final : public ImageDecoder {
   void Decode(fml::RefPtr<ImageDescriptor> descriptor,
               uint32_t target_width,
               uint32_t target_height,
+              bool mipmapped,
               const ImageResult& result) override;
 
   static DecompressResult DecompressTexture(
@@ -86,7 +87,8 @@ class ImageDecoderImpeller final : public ImageDecoder {
       const SkImageInfo& image_info,
       const std::shared_ptr<SkBitmap>& bitmap,
       const std::optional<SkImageInfo>& resize_info,
-      const std::shared_ptr<fml::SyncSwitch>& gpu_disabled_switch);
+      const std::shared_ptr<fml::SyncSwitch>& gpu_disabled_switch,
+      bool mipmapped);
 
   /// @brief Create a texture from the provided bitmap.
   /// @param context     The Impeller graphics context.
@@ -107,7 +109,8 @@ class ImageDecoderImpeller final : public ImageDecoder {
       const std::shared_ptr<impeller::Context>& context,
       const std::shared_ptr<impeller::DeviceBuffer>& buffer,
       const SkImageInfo& image_info,
-      const std::optional<SkImageInfo>& resize_info);
+      const std::optional<SkImageInfo>& resize_info,
+      bool mipmapped);
 
   FML_DISALLOW_COPY_AND_ASSIGN(ImageDecoderImpeller);
 };

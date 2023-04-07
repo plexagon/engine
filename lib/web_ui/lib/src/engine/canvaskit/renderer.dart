@@ -221,7 +221,8 @@ class CanvasKitRenderer implements Renderer {
   Future<ui.Codec> instantiateImageCodec(Uint8List list,
           {int? targetWidth,
           int? targetHeight,
-          bool allowUpscaling = true}) async =>
+          bool allowUpscaling = true,
+          bool mipmapped = true}) async =>
       skiaInstantiateImageCodec(
           list, targetWidth, targetHeight, allowUpscaling);
 
@@ -515,6 +516,11 @@ class CanvasKitRenderer implements Renderer {
         ui_web.assetManager.load(assetKey).then((ByteData data) {
       return CkFragmentProgram.fromBytes(assetKey, data.buffer.asUint8List());
     });
+  }
+
+  @override
+  ui.RenderSurface createRenderSurface(Object textureId, int width, int height) {
+    return CkRenderSurface(textureId, width, height);
   }
 
   @override
