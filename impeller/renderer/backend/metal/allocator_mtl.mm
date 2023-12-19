@@ -18,7 +18,8 @@ std::shared_ptr<Texture> AllocatorMTL::WrapTexture(
     const TextureDescriptor& desc,
     int64_t raw_texture) const {
   auto texture = impeller::TextureMTL::TexturePointerWrapper(desc, raw_texture);
-  texture->SetCoordinateSystem(impeller::TextureCoordinateSystem::kUploadFromHost);
+  texture->SetCoordinateSystem(
+      impeller::TextureCoordinateSystem::kUploadFromHost);
   return texture;
 }
 

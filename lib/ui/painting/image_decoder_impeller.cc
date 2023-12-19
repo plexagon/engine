@@ -537,8 +537,7 @@ void ImageDecoderImpeller::Decode(fml::RefPtr<ImageDescriptor> descriptor,
           } else {
             std::tie(image, decode_error) = UploadTextureToStorage(
                 context, bitmap_result.sk_bitmap, gpu_disabled_switch,
-                impeller::StorageMode::kDevicePrivate,
-                mipmapped);
+                impeller::StorageMode::kDevicePrivate, mipmapped);
             result(image, decode_error);
           }
         };
