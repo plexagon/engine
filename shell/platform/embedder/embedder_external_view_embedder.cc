@@ -217,9 +217,9 @@ void EmbedderExternalViewEmbedder::SubmitFrame(
             ? presentation_time_optional->ToEpochDelta().ToNanoseconds()
             : 0;
 
-  // Submit the scribbled layer to the embedder for presentation.
-  //
-  // @warning: Embedder may trample on our OpenGL context here.
+    // Submit the scribbled layer to the embedder for presentation.
+    //
+    // @warning: Embedder may trample on our OpenGL context here.
     EmbedderLayers presented_layers(
         pending_frame_size_, pending_device_pixel_ratio_,
         pending_surface_transformation_, presentation_time);
