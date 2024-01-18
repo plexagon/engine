@@ -210,13 +210,19 @@ void EmbedderExternalViewEmbedder::SubmitFrame(
     context->flushAndSubmit();
   }
 
+  {
+    auto presentation_time_optional = frame->submit_info().presentation_time;
+    uint64_t presentation_time =
+        presentation_time_optional.has_value()
+            ? presentation_time_optional->ToEpochDelta().ToNanoseconds()
+            : 0;
+
   // Submit the scribbled layer to the embedder for presentation.
   //
   // @warning: Embedder may trample on our OpenGL context here.
-  {
-    EmbedderLayers presented_layers(pending_frame_size_,
-                                    pending_device_pixel_ratio_,
-                                    pending_surface_transformation_);
+    EmbedderLayers presented_layers(
+        pending_frame_size_, pending_device_pixel_ratio_,
+        pending_surface_transformation_, presentation_time);
     // In composition order, submit backing stores and platform views to the
     // embedder.
     for (const auto& view_id : composition_order_) {
