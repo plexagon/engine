@@ -19,8 +19,13 @@ class ShaderData {
     if (rawShaderData is! Map<String, Object?>) {
       throw const FormatException('Invalid Shader Data');
     }
-    final Object? source = rawShaderData['sksl'];
-    final Object? rawUniforms = rawShaderData['uniforms'];
+    final Object? root = rawShaderData['sksl'];
+    if (root is! Map<String, Object?>) {
+      throw const FormatException('Invalid Shader Data');
+    }
+
+    final Object? source = root['shader'];
+    final Object? rawUniforms = root['uniforms'];
     if (source is! String || rawUniforms is! List<Object?>) {
       throw const FormatException('Invalid Shader Data');
     }
@@ -47,15 +52,27 @@ class ShaderData {
       if (type == UniformType.SampledImage) {
         textureCount += 1;
       } else {
+        final Object? bitWidth = rawUniformData['bit_width'];
+
+        final Object? arrayElements = rawUniformData['array_elements'];
         final Object? rows = rawUniformData['rows'];
         final Object? columns = rawUniformData['columns'];
-        final Object? bitWidth = rawUniformData['bit_width'];
-        if (bitWidth is! int || rows is! int || columns is! int) {
+
+        if (bitWidth is! int || rows is! int || arrayElements is! int || columns is! int) {
           throw const FormatException('Invalid Shader Data');
         }
-        floatCount += (bitWidth  ~/ 32) * rows * columns;
+
+        final int units = rows * columns;
+
+        int value = (bitWidth ~/ 32) * units;
+
+        if (arrayElements > 1) {
+          value *= arrayElements;
+        }
+
+        floatCount += value;
       }
-      uniforms[location] = UniformData(
+      uniforms[i] = UniformData(
         name: name,
         location: location,
         type: type,
@@ -86,8 +103,7 @@ class UniformData {
   final UniformType type;
   final int location;
 
-  static const UniformData empty =
-      UniformData(name: '', location: -1, type: UniformType.Float);
+  static const UniformData empty = UniformData(name: '', location: -1, type: UniformType.Float);
 }
 
 enum UniformType {
