@@ -89,17 +89,15 @@ void Scene::renderToSurface(fml::RefPtr<RenderSurface> render_surface,
        render_surface = std::move(render_surface),
        snapshot_delegate = std::move(snapshot_delegate),
        layer_tree = layer_tree]() {
-        RasterStatus raster_status = RasterStatus::kFailed;
+        bool success = false;
         if (layer_tree) {
-          raster_status =
+          success =
               snapshot_delegate->DrawLayerToSurface(layer_tree, render_surface);
         }
 
         fml::TaskRunner::RunNowOrPostTask(
             std::move(ui_task_runner),
-            [ui_task = std::move(ui_task), raster_status] {
-              ui_task(raster_status == RasterStatus::kSuccess);
-            });
+            [ui_task = std::move(ui_task), success] { ui_task(success); });
       });
 
   fml::TaskRunner::RunNowOrPostTask(std::move(raster_task_runner),

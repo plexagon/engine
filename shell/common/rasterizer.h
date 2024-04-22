@@ -718,9 +718,8 @@ class Rasterizer final : public SnapshotDelegate,
 
   ViewRecord& EnsureViewRecord(int64_t view_id);
 
-  RasterStatus DrawLayerToSurface(
-      std::shared_ptr<flutter::LayerTree> layer_tree,
-      fml::RefPtr<RenderSurface> render_surface) override;
+  bool DrawLayerToSurface(std::shared_ptr<flutter::LayerTree> layer_tree,
+                          fml::RefPtr<RenderSurface> render_surface) override;
 
   void FireNextFrameCallbackIfPresent();
 

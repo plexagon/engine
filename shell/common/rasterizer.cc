@@ -816,17 +816,18 @@ Rasterizer::ViewRecord& Rasterizer::EnsureViewRecord(int64_t view_id) {
   return view_records_[view_id];
 }
 
-RasterStatus Rasterizer::DrawLayerToSurface(
+bool Rasterizer::DrawLayerToSurface(
     std::shared_ptr<flutter::LayerTree> layer_tree,
     fml::RefPtr<RenderSurface> render_surface) {
-  RasterStatus raster_status;
+  DrawSurfaceStatus draw_surface_status;
   delegate_.GetIsGpuDisabledSyncSwitch()->Execute(
       fml::SyncSwitch::Handlers()
-          .SetIfTrue([&] { raster_status = RasterStatus::kDiscarded; })
+          .SetIfTrue(
+              [&] { draw_surface_status = DrawSurfaceStatus::kDiscarded; })
           .SetIfFalse([&] {
             auto frame = render_surface->AcquireFrame(layer_tree->frame_size());
             if (frame == nullptr) {
-              raster_status = RasterStatus::kFailed;
+              draw_surface_status = DrawSurfaceStatus::kFailed;
               return;
             }
             SkMatrix root_surface_transformation = SkMatrix{};
@@ -857,14 +858,16 @@ RasterStatus Rasterizer::DrawLayerToSurface(
               std::unique_ptr<FrameDamage> damage;
               bool ignore_raster_cache = true;
 
-              raster_status = compositor_frame->Raster(
+              RasterStatus raster_status = compositor_frame->Raster(
                   *layer_tree,          // layer tree
                   ignore_raster_cache,  // ignore raster cache
                   nullptr               // frame damage
               );
-              if (raster_status == RasterStatus::kFailed ||
-                  raster_status == RasterStatus::kSkipAndRetry) {
+              if (raster_status == RasterStatus::kSkipAndRetry) {
+                draw_surface_status = DrawSurfaceStatus::kRetry;
                 return;
+              } else {
+                draw_surface_status = DrawSurfaceStatus::kSuccess;
               }
               frame->Submit();
 
@@ -876,10 +879,10 @@ RasterStatus Rasterizer::DrawLayerToSurface(
 
               return;
             }
-            raster_status = RasterStatus::kFailed;
+            draw_surface_status = DrawSurfaceStatus::kFailed;
           }));
 
-  return raster_status;
+  return draw_surface_status == DrawSurfaceStatus::kSuccess;
 }
 
 static sk_sp<SkData> ScreenshotLayerTreeAsPicture(

@@ -16,7 +16,6 @@
 #include "third_party/skia/include/encode/SkPngEncoder.h"
 #include "third_party/skia/include/gpu/GrDirectContext.h"
 #include "third_party/skia/include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "third_party/skia/include/utils/SkBase64.h"
 
 namespace flutter {
 

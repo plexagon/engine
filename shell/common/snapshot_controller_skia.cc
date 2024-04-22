@@ -68,13 +68,13 @@ sk_sp<DlImage> SnapshotControllerSkia::MakeFromTexture(int64_t raw_texture,
   const GrGLTextureInfo texture_info{target, static_cast<GrGLuint>(raw_texture),
                                      format};
   texture = GrBackendTextures::MakeGL(size.width(), size.height(),
-                                      GrMipMapped::kNo, texture_info);
+                                      skgpu::Mipmapped::kNo, texture_info);
   color_type = SkColorType::kRGBA_8888_SkColorType;
 #elif defined(FML_OS_IOS) || defined(FML_OS_MACOSX)
   GrMtlTextureInfo texture_info;
   texture_info.fTexture =
       sk_cfp<const void*>(reinterpret_cast<const void*>(raw_texture));
-  texture = GrBackendTexture{size.width(), size.height(), GrMipMapped::kNo,
+  texture = GrBackendTexture{size.width(), size.height(), skgpu::Mipmapped::kNo,
                              texture_info};
   color_type = SkColorType::kBGRA_8888_SkColorType;
 #else
@@ -103,13 +103,13 @@ std::unique_ptr<Surface> SnapshotControllerSkia::MakeOffscreenSurface(
   texture_info.fID = raw_texture;
   texture_info.fFormat = 0x8058;  // GR_GL_RGBA8;
   texture = GrBackendTextures::MakeGL(size.width(), size.height(),
-                                      GrMipMapped::kNo, texture_info);
+                                      skgpu::Mipmapped::kNo, texture_info);
   color_type = SkColorType::kRGBA_8888_SkColorType;
 #elif defined(FML_OS_IOS) || defined(FML_OS_MACOSX)
   GrMtlTextureInfo texture_info;
   texture_info.fTexture =
       sk_cfp<const void*>(reinterpret_cast<const void*>(raw_texture));
-  texture = GrBackendTexture{size.width(), size.height(), GrMipMapped::kNo,
+  texture = GrBackendTexture{size.width(), size.height(), skgpu::Mipmapped::kNo,
                              texture_info};
   color_type = SkColorType::kBGRA_8888_SkColorType;
 #else

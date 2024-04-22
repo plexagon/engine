@@ -87,7 +87,7 @@ class SnapshotDelegate {
 
   virtual sk_sp<SkImage> ConvertToRasterImage(sk_sp<SkImage> image) = 0;
 
-  virtual RasterStatus DrawLayerToSurface(
+  virtual bool DrawLayerToSurface(
       std::shared_ptr<flutter::LayerTree> layer_tree,
       fml::RefPtr<RenderSurface> render_surface) = 0;
 };

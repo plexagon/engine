@@ -6957,7 +6957,7 @@ base class _NativeImageDescriptor extends NativeFieldWrapperClass1 implements Im
   external void _instantiateCodec(Codec outCodec, int targetWidth, int targetHeight, bool mipmapped);
 }
 
-class RenderSurface extends NativeFieldWrapperClass1 {
+final class RenderSurface extends NativeFieldWrapperClass1 {
   RenderSurface._(int rawTexture) {
     _constructor(rawTexture);
   }
@@ -6969,15 +6969,15 @@ class RenderSurface extends NativeFieldWrapperClass1 {
     return completer.future;
   }
 
-  @FfiNative<Void Function(Handle, Int64)>('RenderSurface::Create')
+  @Native<Void Function(Handle, Int64)>(symbol: 'RenderSurface::Create')
   external void _constructor(int rawTexture);
 
   bool get isValid => _isValid();
 
-  @FfiNative<Bool Function(Pointer<Void>)>('RenderSurface::is_valid')
+  @Native<Bool Function(Pointer<Void>)>(symbol: 'RenderSurface::is_valid')
   external bool _isValid();
 
-  @FfiNative<Void Function(Pointer<Void>, Int32, Int32, Handle)>('RenderSurface::setup')
+  @Native<Void Function(Pointer<Void>, Int32, Int32, Handle)>(symbol: 'RenderSurface::setup')
   external void _setup(int width, int height, VoidCallback callback);
 
   Future<void> dispose() async {
@@ -6986,7 +6986,7 @@ class RenderSurface extends NativeFieldWrapperClass1 {
     return completer.future;
   }
 
-  @FfiNative<Void Function(Pointer<Void>, Handle)>('RenderSurface::dispose')
+  @Native<Void Function(Pointer<Void>, Handle)>(symbol: 'RenderSurface::dispose')
   external void _dispose(VoidCallback callback);
 
 }

@@ -42,7 +42,7 @@
           "flutter/build/archives:flutter_embedder_framework",
       "flutter/build/dart:copy_dart_sdk",
           "flutter/shell/platform/darwin/macos:zip_macos_flutter_framework",
-          "flutter/tools/font-subset",
+          "flutter/tools/font_subset",
           "flutter:unittests"
         ]
       },
@@ -157,7 +157,7 @@
       "flutter/build/dart:copy_dart_sdk",
           "flutter/impeller/golden_tests:impeller_golden_tests",
           "flutter/shell/platform/darwin/macos:zip_macos_flutter_framework",
-          "flutter/tools/font-subset",
+          "flutter/tools/font_subset",
           "flutter:unittests",
           "flutter/build/archives:flutter_patched_sdk"
         ]
