@@ -22,8 +22,12 @@ class LayerScene implements ui.Scene {
 
   @override
   Future<void> renderToSurface(ui.RenderSurface renderSurface, {bool flipVertical = false}) async {
-     final ui.Picture picture = layerTree.flatten();
-     await picture.renderToSurface(renderSurface, flipVertical: flipVertical);
+    final uiSize = ui.Size(
+      renderSurface.width.toDouble(),
+      renderSurface.height.toDouble(),
+    );
+    final ui.Picture picture = layerTree.flatten(uiSize);
+    await picture.renderToSurface(renderSurface, flipVertical: flipVertical);
   }
 
   @override
@@ -37,7 +41,11 @@ class LayerScene implements ui.Scene {
 
   @override
   Future<Object?> toCanvas(int width, int height) {
-    final ui.Picture picture = layerTree.flatten();
+    final uiSize = ui.Size(
+      width.toDouble(),
+      height.toDouble(),
+    );
+    final ui.Picture picture = layerTree.flatten(uiSize);
     return picture.toCanvas(width, height);
   }
 

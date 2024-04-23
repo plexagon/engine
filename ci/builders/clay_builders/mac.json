@@ -33,7 +33,7 @@
       "ninja": {
         "config": "mac_debug_arm64",
         "targets": [
-		  "flutter/tools/font-subset",
+		      "flutter/tools/font_subset",
           "flutter/build/archives:archive_gen_snapshot",
           "flutter/build/archives:artifacts",
           "flutter/build/archives:dart_sdk_archive",
@@ -113,7 +113,7 @@
       "ninja": {
         "config": "mac_release_arm64",
         "targets": [
-          "flutter/tools/font-subset",
+          "flutter/tools/font_subset",
           "flutter/build/archives:artifacts",
           "flutter/shell/platform/darwin/macos:zip_macos_flutter_framework"
         ]
