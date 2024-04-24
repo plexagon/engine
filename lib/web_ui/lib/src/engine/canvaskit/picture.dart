@@ -127,7 +127,6 @@ class CkPicture implements ScenePicture {
     if (rasterImage == null) {
       throw StateError('Unable to convert image pixels into SkImage.');
     }
-    ckSurface.dispose();
     return CkImage(rasterImage);
   }
 
