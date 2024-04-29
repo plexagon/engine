@@ -60,6 +60,17 @@ class CanvasKitRenderer implements Renderer {
   /// is supported.
   final Surface pictureToImageSurface = Surface();
 
+  Surface get baseSurface {
+    final Rasterizer currentRasterizer = _rasterizer;
+    if (currentRasterizer is OffscreenCanvasRasterizer) {
+      return currentRasterizer.offscreenSurface;
+    }
+
+    final EngineFlutterView baseView = EnginePlatformDispatcher.instance.viewManager[kImplicitViewId]!;
+    final ViewRasterizer viewRasterizer = _rasterizers[baseView.viewId]!;
+    return viewRasterizer.displayFactory.baseCanvas as Surface;
+  }
+
   // Listens for view creation events from the view manager.
   StreamSubscription<int>? _onViewCreatedListener;
   // Listens for view disposal events from the view manager.

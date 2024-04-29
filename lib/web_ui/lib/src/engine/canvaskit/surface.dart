@@ -594,7 +594,7 @@ class CkRenderSurface implements ui.RenderSurface {
   @override
   SkSurface setup(int width, int height) {
     final surface =
-        isExport ? CanvasKitRenderer.instance.pictureToImageSurface : CanvasKitRenderer.instance.pictureToImageSurface;
+        isExport ? CanvasKitRenderer.instance.pictureToImageSurface : CanvasKitRenderer.instance.baseSurface;
     final SkGrContext? grContext = surface.grContext;
     if (grContext == null) {
       throw Exception('No grContext from baseSurface when setting up RenderSurface (isExport: $isExport).');
@@ -612,7 +612,7 @@ class CkRenderSurface implements ui.RenderSurface {
 
   @override
   void toBytes(ByteBuffer buffer) {
-    final SkGrContext? grContext = CanvasKitRenderer.instance.pictureToImageSurface.grContext;
+    final SkGrContext? grContext = CanvasKitRenderer.instance.baseSurface.grContext;
     if (grContext == null) {
       throw Exception('No grContext from baseSurface when setting up RenderSurface.');
     }
@@ -621,7 +621,7 @@ class CkRenderSurface implements ui.RenderSurface {
 
   ui.Image? makeImageSnapshotFromSource(Object src) {
     // TODO: patchy workaround, fix firing onchange from surface update if possible
-    final SkGrContext? currContext = CanvasKitRenderer.instance.pictureToImageSurface.grContext;
+    final SkGrContext? currContext = CanvasKitRenderer.instance.baseSurface.grContext;
     if (_grContext != currContext) {
       skiaObject.delete();
       _ref = UniqueRef<SkSurface>(this, setup(width, height), 'CkRenderSurface');
