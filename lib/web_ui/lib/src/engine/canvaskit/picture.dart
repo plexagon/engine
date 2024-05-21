@@ -109,7 +109,7 @@ class CkPicture implements ScenePicture {
   CkImage toImageSync(int width, int height) {
     assert(debugCheckNotDisposed('Cannot convert picture to image.'));
 
-    final Surface surface = CanvasKitRenderer.instance.baseSurface;
+    final Surface surface = CanvasKitRenderer.instance.pictureToImageSurface;
     final CkSurface ckSurface = surface.createOrUpdateSurface(ui.Size(width.toDouble(), height.toDouble()));
     final CkCanvas ckCanvas = ckSurface.getCanvas();
     ckCanvas.clear(const ui.Color(0x00000000));
