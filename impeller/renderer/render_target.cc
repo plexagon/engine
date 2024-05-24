@@ -228,17 +228,15 @@ std::shared_ptr<RenderTarget> RenderTarget::CreateOffscreenFromTexture(
   stencil_tex0.storage_mode = stencil_storage_mode;
   stencil_tex0.format = PixelFormat::kS8UInt;
   stencil_tex0.size = size;
-  stencil_tex0.usage =
-      static_cast<TextureUsageMask>(TextureUsage::kRenderTarget);
+  stencil_tex0.usage = TextureUsage::kRenderTarget;
 
   impeller::TextureDescriptor desc;
   desc.storage_mode = impeller::StorageMode::kHostVisible;
   desc.format = impeller::PixelFormat::kB8G8R8A8UNormInt;
   desc.size = size;
   desc.mip_count = 1;
-  desc.usage = static_cast<uint64_t>(TextureUsage::kRenderTarget) |
-               static_cast<uint64_t>(TextureUsage::kShaderRead) |
-               static_cast<uint64_t>(TextureUsage::kShaderWrite);
+  desc.usage = TextureUsage::kRenderTarget | TextureUsage::kShaderRead |
+               TextureUsage::kShaderWrite;
 
   ColorAttachment color0;
   color0.clear_color = Color::BlackTransparent();
