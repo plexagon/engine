@@ -147,7 +147,8 @@ SnapshotControllerImpeller::OffscreenImpellerSurface::AcquireFrame(
         display_list->Dispatch(impeller_dispatcher, SkIRect::MakeSize(size));
         auto picture = impeller_dispatcher.EndRecordingAsPicture();
 
-        aiks_context->Render(picture, *render_target);
+        aiks_context->Render(picture, *render_target,
+                             /*reset_host_buffer=*/true);
         return true;
       });
   return std::make_unique<SurfaceFrame>(
