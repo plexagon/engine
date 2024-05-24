@@ -1,5 +1,5 @@
-#ifndef FLUTTER_LIB_UI_PAINTING_SURFACE_H_
-#define FLUTTER_LIB_UI_PAINTING_SURFACE_H_
+#ifndef FLUTTER_LIB_UI_PAINTING_RENDER_SURFACE_H_
+#define FLUTTER_LIB_UI_PAINTING_RENDER_SURFACE_H_
 
 #include <memory>
 
@@ -38,4 +38,4 @@ class RenderSurface : public RefCountedDartWrappable<RenderSurface> {
 };
 }  // namespace flutter
 
-#endif
+#endif  // FLUTTER_LIB_UI_PAINTING_RENDER_SURFACE_H_

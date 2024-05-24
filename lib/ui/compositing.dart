@@ -88,7 +88,7 @@ base class _NativeScene extends NativeFieldWrapperClass1 implements Scene {
 
   @override
   String toString() => 'Scene';
-  
+
   @override
   Future<void> renderToSurface(RenderSurface renderSurface, {bool flipY = false}) {
     final Completer<void> completer = Completer<void>();

@@ -68,9 +68,7 @@ def build(recipe_path):
     for archive in archives:
       base_path = archive["base_path"]
       for include_path in archive["include_paths"]:
-        destination_path = make_path(
-            DEPLOY_PATH, include_path.replace(base_path, "")
-        )
+        destination_path = make_path(DEPLOY_PATH, include_path.replace(base_path, ""))
         os.makedirs(os.path.dirname(destination_path), exist_ok=True)
         if os.path.isdir(include_path):
           shutil.copytree(include_path, destination_path, dirs_exist_ok=True)
@@ -79,8 +77,7 @@ def build(recipe_path):
   tasks = recipe.get("generators", {}).get("tasks", [])
   for task in tasks:
     language = task.get("language", "")
-    command = language + " " + make_path(task["script"]
-                                        ) + " " + " ".join(task["parameters"])
+    command = language + " " + make_path(task["script"]) + " " + " ".join(task["parameters"])
     execute_command(command.strip())
   archives = recipe.get("archives", [])
   for archive in archives:
@@ -95,9 +92,7 @@ def main():
   clean_deploy_directory()
   set_use_prebuild_dart_sdk(True)
 
-  dart_bin = make_path(
-      "third_party", "dart", "tools", "sdks", "dart-sdk", "bin"
-  )
+  dart_bin = make_path("third_party", "dart", "tools", "sdks", "dart-sdk", "bin")
   PATH = os.environ["PATH"]
   NEW_PATH = f"{dart_bin}:{PATH}"
   os.environ["PATH"] = NEW_PATH
