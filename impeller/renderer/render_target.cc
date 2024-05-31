@@ -224,9 +224,11 @@ std::shared_ptr<RenderTarget> RenderTarget::CreateOffscreenFromTexture(
     return {};
   }
 
+  auto allocator = context.GetResourceAllocator();
+
   TextureDescriptor stencil_tex0;
   stencil_tex0.storage_mode = stencil_storage_mode;
-  stencil_tex0.format = PixelFormat::kS8UInt;
+  stencil_tex0.format = PixelFormat::kD32FloatS8UInt;
   stencil_tex0.size = size;
   stencil_tex0.usage = TextureUsage::kRenderTarget;
 
@@ -242,8 +244,7 @@ std::shared_ptr<RenderTarget> RenderTarget::CreateOffscreenFromTexture(
   color0.clear_color = Color::BlackTransparent();
   color0.load_action = color_load_action;
   color0.store_action = color_store_action;
-  color0.texture =
-      context.GetResourceAllocator()->WrapTexture(desc, raw_texture);
+  color0.texture = allocator->WrapTexture(desc, raw_texture);
 
   if (!color0.texture) {
     return {};
@@ -251,22 +252,22 @@ std::shared_ptr<RenderTarget> RenderTarget::CreateOffscreenFromTexture(
 
   color0.texture->SetLabel(SPrintF("%s Color Texture", label.c_str()));
 
-  StencilAttachment stencil0;
-  stencil0.load_action = stencil_load_action;
-  stencil0.store_action = stencil_store_action;
-  stencil0.clear_stencil = 0u;
-  stencil0.texture =
-      context.GetResourceAllocator()->CreateTexture(stencil_tex0);
-
-  if (!stencil0.texture) {
+  auto texture = allocator->CreateTexture(stencil_tex0);
+  if (!texture) {
     return {};
   }
 
-  stencil0.texture->SetLabel(SPrintF("%s Stencil Texture", label.c_str()));
-
   auto target = std::make_shared<RenderTarget>();
   target->SetColorAttachment(color0, 0u);
-  target->SetStencilAttachment(std::move(stencil0));
+  target->SetupDepthStencilAttachments(
+      context, *allocator, size, true,
+      SPrintF("%s Stencil Texture", label.c_str()),
+      RenderTarget::AttachmentConfig{
+          .storage_mode = stencil_storage_mode,
+          .load_action = stencil_load_action,
+          .store_action = stencil_store_action,
+      },
+      texture);
 
   return target;
 }
