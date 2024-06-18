@@ -306,6 +306,54 @@ class OpacityOperation implements LayerOperation {
   );
 }
 
+class BlendLayer
+  with PictureEngineLayer
+  implements ui.BlendEngineLayer {}
+class BlendOperation implements LayerOperation {
+  BlendOperation(this.alpha, this.blendMode, this.offset);
+
+  final int alpha;
+  final ui.BlendMode blendMode;
+  final ui.Offset offset;
+
+  @override
+  ui.Rect cullRect(ui.Rect contentRect) => contentRect.shift(offset);
+
+  @override
+  ui.Rect inverseMapRect(ui.Rect rect) => rect;
+
+  @override
+  void pre(SceneCanvas canvas, ui.Rect cullRect) {
+    if (offset != ui.Offset.zero) {
+      canvas.save();
+      canvas.translate(offset.dx, offset.dy);
+      cullRect = cullRect.shift(-offset);
+    }
+    canvas.saveLayer(
+      cullRect,
+      ui.Paint()
+          ..color = ui.Color.fromARGB(alpha, 0, 0, 0)
+          ..blendMode = blendMode
+    );
+  }
+
+  @override
+  void post(SceneCanvas canvas, ui.Rect contentRect) {
+    canvas.restore();
+    if (offset != ui.Offset.zero) {
+      canvas.restore();
+    }
+  }
+
+  @override
+  PlatformViewStyling createPlatformViewStyling() => PlatformViewStyling(
+        position: offset != ui.Offset.zero
+            ? PlatformViewPosition.offset(offset)
+            : const PlatformViewPosition.zero(),
+        opacity: alpha.toDouble() / 255.0,
+      );
+}
+
 class TransformLayer
   with PictureEngineLayer
   implements ui.TransformEngineLayer {}

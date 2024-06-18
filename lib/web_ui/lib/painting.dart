@@ -880,7 +880,7 @@ abstract class RenderSurface {
   RenderSurface(this.texture, this.width, this.height, this.isExport);
 
   static Future<RenderSurface> fromTexture(Object textureId, int width, int height, {bool isExport = false}) async {
-    return engine.CkRenderSurface(textureId, width, height, isExport);
+    return engine.renderer.createRenderSurface(textureId, width, height, isExport: isExport);
   }
 
   Object texture;
@@ -888,10 +888,7 @@ abstract class RenderSurface {
   int height;
   bool isExport;
 
-  engine.SkSurface get skiaObject;
-
-  engine.SkSurface setup(int width, int height);
-  void toBytes(ByteBuffer buffer);
+  Future<Object> toBytes(ByteBuffer buffer);
   Image? makeImageSnapshotFromSource(Object src);
   Future<void> dispose();
 }

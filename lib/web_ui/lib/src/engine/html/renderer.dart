@@ -387,4 +387,9 @@ class HtmlRenderer implements Renderer {
     imageElement.src = await canvas.toDataUrl();
     return completer.future;
   }
+
+  @override
+  ui.RenderSurface createRenderSurface(Object textureId, int width, int height, {bool isExport = false}) {
+    throw UnimplementedError('createRenderSurface not implemented in HTML renderer.');
+  }
 }
