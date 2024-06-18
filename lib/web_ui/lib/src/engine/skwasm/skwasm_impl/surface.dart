@@ -130,12 +130,10 @@ class SkwasmSurface {
 }
 
 class SkwasmRenderSurface implements ui.RenderSurface {
-  SkwasmRenderSurface(this.texture, this.width, this.height, this.isExport);
+  SkwasmRenderSurface(this.texture, this.width, this.height);
 
   @override
   int height;
-  @override
-  bool isExport;
   @override
   Object texture;
   @override
@@ -143,9 +141,9 @@ class SkwasmRenderSurface implements ui.RenderSurface {
 
   DomImageBitmap? _lastRenderedImageBitmap;
 
-  static Future<ui.RenderSurface> fromTexture(Object textureId, int width, int height, {bool isExport = false}) async {
+  static Future<ui.RenderSurface> fromTexture(Object textureId, int width, int height) async {
     // Setup is run via createDefault in the parent constructor
-    return SkwasmRenderSurface(textureId, width, height, isExport);
+    return SkwasmRenderSurface(textureId, width, height);
   }
 
   @override

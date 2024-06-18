@@ -378,7 +378,7 @@ class HtmlRenderer implements Renderer {
   }
 
   @override
-  ui.RenderSurface createRenderSurface(Object textureId, int width, int height, {bool isExport = false}) {
+  ui.RenderSurface createRenderSurface(Object textureId, int width, int height) {
     throw UnimplementedError('createRenderSurface not implemented in HTML renderer.');
   }
 }
