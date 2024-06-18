@@ -70,15 +70,31 @@ class EngineScene implements ui.Scene {
   }
 
   @override
-  Future<void> renderToSurface(ui.RenderSurface renderSurface, {bool flipVertical = false}) {
-    // TODO: implement renderToSurface
-    throw UnimplementedError();
+  Future<void> renderToSurface(ui.RenderSurface renderSurface, {bool flipVertical = false}) async {
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final ui.Rect canvasRect = ui.Rect.fromLTWH(0, 0, renderSurface.width.toDouble(), renderSurface.height.toDouble());
+    final ui.Canvas canvas = ui.Canvas(recorder, canvasRect);
+
+    // Only rasterizes the picture slices.
+    for (final PictureSlice slice in rootLayer.slices.whereType<PictureSlice>()) {
+      canvas.drawPicture(slice.picture);
+    }
+    final ui.Picture picture = recorder.endRecording();
+    await picture.renderToSurface(renderSurface, flipVertical: flipVertical);
   }
 
   @override
   Future<Object?> toCanvas(int width, int height) {
-    // TODO: implement toCanvas
-    throw UnimplementedError();
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final ui.Rect canvasRect = ui.Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble());
+    final ui.Canvas canvas = ui.Canvas(recorder, canvasRect);
+
+    // Only rasterizes the picture slices.
+    for (final PictureSlice slice in rootLayer.slices.whereType<PictureSlice>()) {
+      canvas.drawPicture(slice.picture);
+    }
+    final ui.Picture picture = recorder.endRecording();
+    return picture.toCanvas(width, height);
   }
 }
 
@@ -282,8 +298,15 @@ class EngineSceneBuilder implements ui.SceneBuilder {
   }
 
   @override
-  ui.BlendEngineLayer pushBlend(int alpha, ui.BlendMode blendMode, {ui.Offset offset = ui.Offset.zero, ui.BlendEngineLayer? oldLayer}) {
-    // TODO: implement pushBlend
-    throw UnimplementedError();
+  ui.BlendEngineLayer pushBlend(
+    int alpha,
+    ui.BlendMode blendMode, {
+    ui.Offset offset = ui.Offset.zero,
+    ui.BlendEngineLayer? oldLayer,
+  }) {
+    return pushLayer<BlendLayer>(
+        BlendLayer(),
+        BlendOperation(alpha, blendMode, offset),
+      );
   }
 }
