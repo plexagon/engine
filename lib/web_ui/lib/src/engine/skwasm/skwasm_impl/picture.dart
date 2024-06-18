@@ -38,8 +38,9 @@ class SkwasmPicture extends SkwasmObjectWrapper<RawPicture> implements ScenePict
   }
 
   @override
-  Future<void> renderToSurface(ui.RenderSurface renderSurface, {bool flipVertical = false}) {
-    throw UnimplementedError();
+  Future<void> renderToSurface(ui.RenderSurface renderSurface, {bool flipVertical = false}) async {
+    final SkwasmRenderSurface skwasmRenderSurface = renderSurface as SkwasmRenderSurface;
+    await skwasmRenderSurface.renderPicture(this);
   }
 
   @override

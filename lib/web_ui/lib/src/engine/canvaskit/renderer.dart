@@ -511,6 +511,11 @@ class CanvasKitRenderer implements Renderer {
   }
 
   @override
+  ui.RenderSurface createRenderSurface(Object textureId, int width, int height, {bool isExport = false}) {
+    return CkRenderSurface(textureId, width, height, isExport);
+  }
+
+  @override
   ui.LineMetrics createLineMetrics(
           {required bool hardBreak,
           required double ascent,

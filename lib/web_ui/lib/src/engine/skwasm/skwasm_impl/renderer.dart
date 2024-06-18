@@ -473,6 +473,11 @@ class SkwasmRenderer implements Renderer {
       surface.handle,
     ));
   }
+
+  @override
+  ui.RenderSurface createRenderSurface(Object textureId, int width, int height, {bool isExport = false}) {
+    return SkwasmRenderSurface(textureId, width, height, isExport);
+  }
 }
 
 class SkwasmPictureRenderer implements PictureRenderer {

@@ -132,7 +132,8 @@ class CkPicture implements ScenePicture {
 
   @override
   Future<void> renderToSurface(ui.RenderSurface renderSurface, {bool flipVertical = false}) async {
-    final SkCanvas canvas = renderSurface.skiaObject.getCanvas();
+    final CkRenderSurface ckRenderSurfce = renderSurface as CkRenderSurface;
+    final SkCanvas canvas = ckRenderSurfce.skiaObject.getCanvas();
     canvas.save();
 
     if (flipVertical) {
@@ -142,6 +143,6 @@ class CkPicture implements ScenePicture {
 
     canvas.drawPicture(skiaObject);
     canvas.restore();
-    renderSurface.skiaObject.flush();
+    ckRenderSurfce.skiaObject.flush();
   }
 }

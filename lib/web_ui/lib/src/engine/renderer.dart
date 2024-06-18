@@ -222,5 +222,7 @@ abstract class Renderer {
 
   ui.ParagraphBuilder createParagraphBuilder(ui.ParagraphStyle style);
 
+  ui.RenderSurface createRenderSurface(Object textureId, int width, int height, {bool isExport = false});
+
   Future<void> renderScene(ui.Scene scene, ui.FlutterView view);
 }
