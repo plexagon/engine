@@ -475,8 +475,8 @@ class SkwasmRenderer implements Renderer {
   }
 
   @override
-  ui.RenderSurface createRenderSurface(Object textureId, int width, int height, {bool isExport = false}) {
-    return SkwasmRenderSurface(textureId, width, height, isExport);
+  ui.RenderSurface createRenderSurface(Object textureId, int width, int height) {
+    return SkwasmRenderSurface(textureId, width, height);
   }
 }
 

@@ -191,7 +191,7 @@ class SkwasmRenderer implements Renderer {
   }
 
   @override
-  ui.RenderSurface createRenderSurface(Object textureId, int width, int height, {bool isExport = false}) {
+  ui.RenderSurface createRenderSurface(Object textureId, int width, int height) {
     throw UnimplementedError('Skwasm not implemented on this platform.');
   }
 }
