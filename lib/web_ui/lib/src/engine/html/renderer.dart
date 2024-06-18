@@ -376,4 +376,9 @@ class HtmlRenderer implements Renderer {
   FutureOr<ui.Image> createImageFromTextureSource(JSAny object,  { required int width, required int height, required bool transferOwnership }) {
     throw Exception('Not implemented for HTML renderer');
   }
+
+  @override
+  ui.RenderSurface createRenderSurface(Object textureId, int width, int height, {bool isExport = false}) {
+    throw UnimplementedError('createRenderSurface not implemented in HTML renderer.');
+  }
 }

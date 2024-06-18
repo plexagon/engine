@@ -566,7 +566,7 @@ class CkSurface {
 
 class CkRenderSurface implements ui.RenderSurface {
   CkRenderSurface(this.texture, this.width, this.height, this.isExport) {
-    _ref = UniqueRef<SkSurface>(this, setup(width, height), 'CkRenderSurface');
+    _ref = UniqueRef<SkSurface>(this, _setup(width, height), 'CkRenderSurface');
   }
 
   @override
@@ -585,7 +585,6 @@ class CkRenderSurface implements ui.RenderSurface {
 
   late UniqueRef<SkSurface> _ref;
 
-  @override
   SkSurface get skiaObject => _ref.nativeObject;
 
   static Future<ui.RenderSurface> fromTexture(Object textureId, int width, int height, {bool isExport = false}) async {
@@ -593,9 +592,8 @@ class CkRenderSurface implements ui.RenderSurface {
     return CkRenderSurface(textureId, width, height, isExport);
   }
 
-  @override
-  SkSurface setup(int width, int height) {
-    final surface =
+  SkSurface _setup(int width, int height) {
+    final Surface surface =
         isExport ? CanvasKitRenderer.instance.pictureToImageSurface : CanvasKitRenderer.instance.baseSurface;
     final SkGrContext? grContext = surface.grContext;
     if (grContext == null) {
@@ -613,20 +611,22 @@ class CkRenderSurface implements ui.RenderSurface {
   }
 
   @override
-  void toBytes(ByteBuffer buffer) {
+  Future<Object> toBytes(ByteBuffer buffer) async {
     final SkGrContext? grContext = CanvasKitRenderer.instance.baseSurface.grContext;
     if (grContext == null) {
       throw Exception('No grContext from baseSurface when setting up RenderSurface.');
     }
     skiaObject.readPixelsGL(buffer.asUint8List(), grContext);
+    return buffer;
   }
 
+  @override
   ui.Image? makeImageSnapshotFromSource(Object src) {
     // TODO: patchy workaround, fix firing onchange from surface update if possible
     final SkGrContext? currContext = CanvasKitRenderer.instance.baseSurface.grContext;
     if (_grContext != currContext) {
       skiaObject.delete();
-      _ref = UniqueRef<SkSurface>(this, setup(width, height), 'CkRenderSurface');
+      _ref = UniqueRef<SkSurface>(this, _setup(width, height), 'CkRenderSurface');
       _grContext = currContext;
     }
 

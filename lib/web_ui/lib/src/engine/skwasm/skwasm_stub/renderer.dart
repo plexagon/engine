@@ -195,4 +195,9 @@ class SkwasmRenderer implements Renderer {
   ui.Image createImageFromTextureSource(JSAny object,  { required int width, required int height, required bool transferOwnership }) {
     throw Exception('Skwasm not implemented on this platform.');
   }
+
+  @override
+  ui.RenderSurface createRenderSurface(Object textureId, int width, int height, {bool isExport = false}) {
+    throw UnimplementedError('Skwasm not implemented on this platform.');
+  }
 }

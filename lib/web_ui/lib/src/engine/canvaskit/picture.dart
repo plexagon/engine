@@ -98,7 +98,7 @@ class CkPicture implements ScenePicture {
   @override
   Future<Object?> toCanvas(int width, int height) async {
     final Surface surface = CanvasKitRenderer.instance.pictureToImageSurface;
-    final CkSurface ckSurface = surface.createOrUpdateSurface(ui.Size(width.toDouble(), height.toDouble()));
+    final CkSurface ckSurface = surface.createOrUpdateSurface(BitmapSize(width, height));
     final CkCanvas ckCanvas = ckSurface.getCanvas();
     ckCanvas.clear(const ui.Color(0x00000000));
     ckCanvas.drawPicture(this);
@@ -111,7 +111,7 @@ class CkPicture implements ScenePicture {
     assert(debugCheckNotDisposed('Cannot convert picture to image.'));
 
     final Surface surface = CanvasKitRenderer.instance.pictureToImageSurface;
-    final CkSurface ckSurface = surface.createOrUpdateSurface(ui.Size(width.toDouble(), height.toDouble()));
+    final CkSurface ckSurface = surface.createOrUpdateSurface(BitmapSize(width, height));
     final CkCanvas ckCanvas = ckSurface.getCanvas();
     ckCanvas.clear(const ui.Color(0x00000000));
     ckCanvas.drawPicture(this);
@@ -133,7 +133,8 @@ class CkPicture implements ScenePicture {
 
   @override
   Future<void> renderToSurface(ui.RenderSurface renderSurface, {bool flipVertical = false}) async {
-    final SkCanvas canvas = renderSurface.skiaObject.getCanvas();
+    final CkRenderSurface ckRenderSurfce = renderSurface as CkRenderSurface;
+    final SkCanvas canvas = ckRenderSurfce.skiaObject.getCanvas();
     canvas.save();
 
     if (flipVertical) {
@@ -143,6 +144,6 @@ class CkPicture implements ScenePicture {
 
     canvas.drawPicture(skiaObject);
     canvas.restore();
-    renderSurface.skiaObject.flush();
+    ckRenderSurfce.skiaObject.flush();
   }
 }
