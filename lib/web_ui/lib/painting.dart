@@ -877,16 +877,15 @@ abstract class FragmentShader implements Shader {
 }
 
 abstract class RenderSurface {
-  RenderSurface(this.texture, this.width, this.height, this.isExport);
+  RenderSurface(this.texture, this.width, this.height);
 
-  static Future<RenderSurface> fromTexture(Object textureId, int width, int height, {bool isExport = false}) async {
-    return engine.CkRenderSurface(textureId, width, height, isExport);
+  static Future<RenderSurface> fromTexture(Object textureId, int width, int height) async {
+    return engine.CkRenderSurface(textureId, width, height);
   }
 
   Object texture;
   int width;
   int height;
-  bool isExport;
 
   engine.SkSurface get skiaObject;
 
