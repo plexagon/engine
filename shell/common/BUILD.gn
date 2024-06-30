@@ -132,6 +132,7 @@ source_set("common") {
   public_deps = [
     ":display",
     ":platform_message_handler",
+    "//flutter/impeller/toolkit/android",
     "//flutter/shell/version",
     "//flutter/third_party/rapidjson",
     "//flutter/third_party/tonic",
