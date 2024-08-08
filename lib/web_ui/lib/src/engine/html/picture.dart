@@ -136,12 +136,12 @@ class EnginePicture implements ui.Picture {
 
   final RecordingCanvas? recordingCanvas;
   final ui.Rect? cullRect;
-  
+
   @override
   Future<void> renderToSurface(ui.RenderSurface renderSurface, {bool flipVertical = false}) {
     throw UnimplementedError();
   }
-  
+
   @override
   Future<Object?> toCanvas(int width, int height) {
     throw UnimplementedError();

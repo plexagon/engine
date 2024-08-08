@@ -56,8 +56,8 @@ void Scene::renderToSurface(fml::RefPtr<RenderSurface> render_surface,
   auto persistent_callback =
       std::make_unique<tonic::DartPersistentValue>(dart_state, callback);
   const auto snapshot_delegate = dart_state->GetSnapshotDelegate();
-  const auto layer_tree =
-      std::make_shared<LayerTree>(layer_tree_root_layer_, render_surface->size());
+  const auto layer_tree = std::make_shared<LayerTree>(layer_tree_root_layer_,
+                                                      render_surface->size());
 
   const auto ui_task =
       fml::MakeCopyable([persistent_callback = std::move(persistent_callback)](
