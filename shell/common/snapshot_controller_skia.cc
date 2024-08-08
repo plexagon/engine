@@ -85,8 +85,8 @@ sk_sp<DlImage> SnapshotControllerSkia::MakeFromTexture(int64_t raw_texture,
   GrMtlTextureInfo texture_info;
   texture_info.fTexture =
       sk_cfp<const void*>(reinterpret_cast<const void*>(raw_texture));
-  texture = GrBackendTextures::MakeMtl(size.width(), size.height(), skgpu::Mipmapped::kNo,
-                             texture_info);
+  texture = GrBackendTextures::MakeMtl(size.width(), size.height(),
+                                       skgpu::Mipmapped::kNo, texture_info);
   color_type = SkColorType::kBGRA_8888_SkColorType;
 #else
   texture = GrBackendTexture();
@@ -120,8 +120,8 @@ std::unique_ptr<Surface> SnapshotControllerSkia::MakeOffscreenSurface(
   GrMtlTextureInfo texture_info;
   texture_info.fTexture =
       sk_cfp<const void*>(reinterpret_cast<const void*>(raw_texture));
-  texture = GrBackendTextures::MakeMtl(size.width(), size.height(), skgpu::Mipmapped::kNo,
-                             texture_info);
+  texture = GrBackendTextures::MakeMtl(size.width(), size.height(),
+                                       skgpu::Mipmapped::kNo, texture_info);
   color_type = SkColorType::kBGRA_8888_SkColorType;
 #else
   texture = GrBackendTexture();
