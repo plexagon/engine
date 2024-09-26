@@ -15,12 +15,15 @@
 #include "third_party/skia/include/core/SkSurface.h"
 #include "third_party/skia/include/gpu/ganesh/SkImageGanesh.h"
 #include "third_party/skia/include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "third_party/skia/include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
-#include "third_party/skia/include/gpu/ganesh/mtl/GrMtlTypes.h"
 
 #if FML_OS_ANDROID
 #include "third_party/skia/include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "third_party/skia/include/gpu/gl/GrGLTypes.h"
+#endif
+
+#if defined(FML_OS_IOS) || defined(FML_OS_MACOSX)
+#include "third_party/skia/include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
+#include "third_party/skia/include/gpu/ganesh/mtl/GrMtlTypes.h"
 #endif
 
 namespace flutter {

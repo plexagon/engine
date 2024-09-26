@@ -92,7 +92,7 @@ def main():
   clean_deploy_directory()
   set_use_prebuild_dart_sdk(True)
 
-  dart_bin = make_path("third_party", "dart", "tools", "sdks", "dart-sdk", "bin")
+  dart_bin = make_path("flutter", "third_party", "dart", "tools", "sdks", "dart-sdk", "bin")
   PATH = os.environ["PATH"]
   NEW_PATH = f"{dart_bin}:{PATH}"
   os.environ["PATH"] = NEW_PATH
