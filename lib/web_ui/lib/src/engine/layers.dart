@@ -292,10 +292,7 @@ class BlendOperation implements LayerOperation {
   final ui.Offset offset;
 
   @override
-  ui.Rect cullRect(ui.Rect contentRect) => contentRect.shift(offset);
-
-  @override
-  ui.Rect inverseMapRect(ui.Rect rect) => rect;
+  ui.Rect mapRect(ui.Rect contentRect) => contentRect.shift(offset);
 
   @override
   void pre(SceneCanvas canvas, ui.Rect cullRect) {
