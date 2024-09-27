@@ -589,7 +589,7 @@ class CkRenderSurface implements ui.RenderSurface {
 
   SkSurface _setup(int width, int height) {
     final Surface surface = CanvasKitRenderer.instance.pictureToImageSurface;
-    surface.createOrUpdateSurface( ui.Size(width.toDouble(), height.toDouble()));
+    surface.createOrUpdateSurface(BitmapSize(width, height));
     final SkGrContext? grContext = surface.grContext;
     if (grContext == null) {
       throw Exception('No grContext from pictureToImageSurface when setting up RenderSurface');
