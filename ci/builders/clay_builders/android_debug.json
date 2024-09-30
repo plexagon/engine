@@ -11,7 +11,8 @@
             "out/android_debug/zip_archives/android-arm/symbols.zip",
             "out/android_debug/zip_archives/download.flutter.io",
             "out/android_debug/zip_archives/sky_engine.zip",
-            "out/android_debug/zip_archives/android-javadoc.zip"
+            "out/android_debug/zip_archives/android-javadoc.zip",
+            "out/android_debug/zip_archives/flutter_gpu.zip"
           ]
         }
       ],
@@ -30,6 +31,7 @@
         "targets": [
           "flutter",
           "flutter/sky/dist:zip_old_location",
+          "flutter/lib/gpu/dist:zip_old_location",
           "flutter/shell/platform/android:embedding_jars",
           "flutter/shell/platform/android:abi_jars"
         ]
